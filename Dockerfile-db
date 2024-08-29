@@ -1,0 +1,5 @@
+# Use a imagem oficial do PostgreSQL
+FROM postgres:latest
+
+# Copie o script de inicialização para o contêiner
+COPY init.sql /docker-entrypoint-initdb.d/
