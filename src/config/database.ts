@@ -1,22 +1,25 @@
 import { Sequelize } from 'sequelize';
+import { getDbConfig } from './config';
 
-export const sequelize = new Sequelize(
-    process.env.DB_NAME || 'measures',
-    process.env.DB_USER || 'user',
-    process.env.DB_PASSWORD || 'password',
-    {
-        host: process.env.DB_HOST || 'db',
-        dialect: 'postgres',
-        port: parseInt(process.env.DB_PORT || '5432', 10),
-    }
-);
+const { name, user, password, host, port, dialect } = getDbConfig();
 
-export const connectDatabase = async () => {
+export const sequelize = new Sequelize(name, user, password, {
+    host,
+    dialect,
+    port,
+});
+
+export const connectDatabase = async (): Promise<void> => {
     try {
         await sequelize.authenticate();
         console.log('Database connected successfully.');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
-        throw error;
+        if (error instanceof Error) {
+            console.error('Unable to connect to the database:', error.message);
+            throw new Error(`Database connection failed: ${error.message}`);
+        } else {
+            console.error('An unknown error occurred while connecting to the database.');
+            throw new Error('Database connection failed due to an unknown error.');
+        }
     }
 };

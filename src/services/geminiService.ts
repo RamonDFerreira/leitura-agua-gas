@@ -56,8 +56,5 @@ export async function getMeasureValueFromImage(base64Image: string): Promise<num
     }
 }
 
-export const geminiService = {
-    extractValueFromImage: jest.fn()
-};
 // Initialize the model immediately
 initializeGeminiModel();

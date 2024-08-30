@@ -1,7 +1,22 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { sequelize } from '../config/database';
 
-export class Measure extends Model {
+// Definindo os atributos da medida
+interface MeasureAttributes {
+    customer_code: string;
+    measure_datetime: Date;
+    measure_type: string;
+    measure_value: number;
+    image_url: string;
+    measure_uuid: string;
+    has_confirmed: boolean;
+}
+
+// Atributos opcionais para operações de criação
+interface MeasureCreationAttributes extends Optional<MeasureAttributes, 'measure_uuid'> {}
+
+// Classe do Modelo Measure
+export class Measure extends Model<MeasureAttributes, MeasureCreationAttributes> implements MeasureAttributes {
     public customer_code!: string;
     public measure_datetime!: Date;
     public measure_type!: string;
@@ -11,41 +26,42 @@ export class Measure extends Model {
     public has_confirmed!: boolean;
 }
 
+// Inicializando o modelo
 Measure.init({
     customer_code: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     measure_datetime: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
     },
     measure_type: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     measure_value: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
     },
     image_url: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     measure_uuid: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        primaryKey: true
+        primaryKey: true,
     },
     has_confirmed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false
-    }
+        defaultValue: false,
+    },
 }, {
     sequelize,
     modelName: 'Measure',
     tableName: 'measures',
-    timestamps: false
+    timestamps: false,
 });

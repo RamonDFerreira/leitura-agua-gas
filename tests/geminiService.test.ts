@@ -40,4 +40,5 @@ describe('getMeasureValueFromImage', () => {
         const measureValue = await getMeasureValueFromImage(base64Image);
         expect(measureValue).toBe(2042245);
     });
+    
 });
