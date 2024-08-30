@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { validateUploadData } from '../src/middlewares/validationMiddleware';
 
-// Testa se a validação passa para dados corretos
 describe('validateUploadData', () => {
   it('should call next() for valid data', () => {
     const req = {
@@ -20,5 +19,27 @@ describe('validateUploadData', () => {
     expect(next).toHaveBeenCalled();
   });
 
-  // Adicione mais testes para verificar erros de validação
+  it('should return 400 if data is invalid', () => {
+    const req = {
+      body: {
+        image: '',
+        customer_code: '',
+        measure_datetime: 'invalid_date',
+        measure_type: 'INVALID_TYPE'
+      }
+    } as Request;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    } as unknown as Response;
+    const next = jest.fn() as NextFunction;
+
+    validateUploadData(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error_code: "INVALID_DATA",
+      error_description: expect.any(String)
+    });
+  });
 });
