@@ -62,10 +62,59 @@ A API permite o upload de imagens contendo medidas, consulta e listagem de medid
 
 Após subir os contêineres Docker, a aplicação estará disponível em `http://localhost:3000`.
 
-- **Endpoint GET /:** Informa uma mensagem de boas vindas.
-- **Endpoint POST /upload:** Recebe uma imagem em base64, consulta a API Google Gemini e retorna a medida lida.
-- **Endpoint POST /confirm:** Recebe um measure_uuid e um valor de confirmação para alterar o valor da medida lida. Retorna sucesso ou erro.
-- **Endpoint GET /:customer_code/list:** Lista as medidas realizadas por um determinado cliente.
+| Método | Endpoint              | Descrição                                                                 |
+| ------ | --------------------- | ------------------------------------------------------------------------- |
+| POST   | `/upload`             | Recebe uma imagem base64, consulta a API Google Gemini e retorna a medida lida. |
+| PATCH  | `/confirm`            | Confirma o valor de uma medida previamente registrada.                     |
+| GET    | `/<customer_code>/list` | Lista as medidas realizadas por um cliente, filtrando opcionalmente pelo tipo. |
+
+### POST /upload
+
+| Campo           | Tipo     | Descrição                                                         |
+| --------------- | -------- | ----------------------------------------------------------------- |
+| `image`         | `string` | Imagem em base64.                                                 |
+| `customer_code` | `string` | Código do cliente.                                                |
+| `measure_datetime` | `datetime` | Data e hora da medição.                                      |
+| `measure_type`  | `string` | Tipo de medida: `WATER` ou `GAS` (case-insensitive).              |
+
+**Response**
+
+| Status Code | Descrição                                                                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `200`       | Operação realizada com sucesso, retorna `image_url`, `measure_value` e `measure_uuid`.                      |
+| `400`       | Dados inválidos. Retorna `INVALID_DATA` e a descrição do erro.                                              |
+| `409`       | Leitura do mês já realizada. Retorna `DOUBLE_REPORT` e a descrição do erro.                                 |
+
+### PATCH /confirm
+
+| Campo            | Tipo     | Descrição                                                    |
+| ---------------- | -------- | ------------------------------------------------------------ |
+| `measure_uuid`   | `string` | UUID da medida que deseja confirmar.                         |
+| `confirmed_value`| `integer`| Valor confirmado da medida.                                  |
+
+**Response**
+
+| Status Code | Descrição                                                                                       |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `200`       | Operação realizada com sucesso, retorna `success: true`.                                         |
+| `400`       | Dados inválidos. Retorna `INVALID_DATA` e a descrição do erro.                                  |
+| `404`       | Leitura não encontrada. Retorna `MEASURE_NOT_FOUND` e a descrição do erro.                      |
+| `409`       | Leitura já confirmada. Retorna `CONFIRMATION_DUPLICATE` e a descrição do erro.                  |
+
+### GET /<customer_code>/list
+
+| Query Parameters (Opcional) | Tipo     | Descrição                                                     |
+| --------------------------- | -------- | ------------------------------------------------------------- |
+| `measure_type`              | `string` | Tipo de medida: `WATER` ou `GAS` (case-insensitive).           |
+
+**Response**
+
+| Status Code | Descrição                                                                                       |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `200`       | Operação realizada com sucesso, retorna uma lista de medidas realizadas.                         |
+| `400`       | Tipo de medida inválido. Retorna `INVALID_TYPE` e a descrição do erro.                           |
+| `404`       | Nenhuma leitura encontrada. Retorna `MEASURES_NOT_FOUND` e a descrição do erro.                  |
+
 
 ## Executando Testes
 
